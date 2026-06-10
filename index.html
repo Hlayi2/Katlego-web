@@ -4,6 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Lekhuleni Katlego | Full-Stack Software Developer</title>
+  <meta name="description" content="Professional portfolio of Lekhuleni Katlego - Full-Stack Software Developer specializing in Java, C#, .NET MAUI, Angular, and Spring Boot">
+  <meta name="author" content="Lekhuleni Katlego">
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/style.css" />
 </head>
@@ -11,30 +13,50 @@
 
 <nav>
   <div class="logo">Katlego<span>.</span></div>
+  
+ 
+  <div class="hamburger" onclick="toggleMobileMenu()">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+  
   <ul class="nav-links">
-    <li><a href="#about">About</a></li>
-    <li><a href="#skills">Skills</a></li>
-    <li><a href="#experience">Experience</a></li>
-    <li><a href="#projects">Projects</a></li>
-    <li><a href="#education">Education</a></li>
-    <li><a href="#contact">Contact</a></li>
+    <li><a href="#about" onclick="closeMobileMenu()">About</a></li>
+    <li><a href="#skills" onclick="closeMobileMenu()">Skills</a></li>
+    <li><a href="#experience" onclick="closeMobileMenu()">Experience</a></li>
+    <li><a href="#projects" onclick="closeMobileMenu()">Projects</a></li>
+    <li><a href="#education" onclick="closeMobileMenu()">Education</a></li>
+    <li><a href="#contact" onclick="closeMobileMenu()">Contact</a></li>
   </ul>
 </nav>
 
 <section class="hero" id="home">
-  <div class="hero-inner">
-    <div class="hero-tag">Open to opportunities</div>
-    <h1>Lekhuleni<br><em>Katlego</em></h1>
-    <p class="hero-subtitle">
-      Full-Stack Software Developer building enterprise-grade web and mobile applications
-      with a focus on secure, scalable, user-centred digital innovation.
-    </p>
-    <p class="hero-role">
-      <strong>Java &middot; JavaScript &middot; Angular &middot; Spring Boot &middot; C# &middot; .NET MAUI &middot; JHipster</strong>
-    </p>
-    <div class="hero-cta">
-      <a href="#projects" class="btn btn-primary">View My Work &rarr;</a>
-      <a href="#contact" class="btn btn-outline">Get In Touch</a>
+  <div class="hero-container">
+    <div class="hero-left">
+      <div class="hero-greeting">Hello There!</div>
+      <h1>I'm <span class="highlight">Lekhuleni Katlego</span></h1>
+      <p class="hero-subtitle">
+        Full-Stack Software Developer building enterprise-grade web and mobile applications
+        with a focus on secure, scalable, user-centred digital innovation.
+      </p>
+      <div class="hero-status">
+        <span class="status-dot"></span>
+        Available for opportunities
+      </div>
+      <div class="hero-cta">
+        <a href="#projects" class="btn btn-primary">View My Work →</a>
+        <a href="#contact" class="btn btn-outline">Get In Touch</a>
+      </div>
+    </div>
+    <div class="hero-right">
+      <div class="profile-card">
+        <div class="profile-image-large">
+          <img src="assets/images/kat.jpeg" alt="Lekhuleni Katlego">
+        </div>
+        <div class="profile-name">Lekhuleni Katlego</div>
+        <div class="profile-title">Full-Stack Developer</div>
+      </div>
     </div>
   </div>
 </section>
@@ -47,7 +69,7 @@
   </div>
   <div class="about-grid reveal">
     <div class="about-card">
-      <div class="avatar">LK</div>
+      
       <div>
         <div class="about-name">Lekhuleni Katlego</div>
         <div class="about-title">Full-Stack Developer &middot; .NET & Mobile Developer &amp; Computer Science Student</div>

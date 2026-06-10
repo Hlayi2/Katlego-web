@@ -1,4 +1,4 @@
-// Intersection Observer for reveal animations
+
 const observer = new IntersectionObserver((entries) => {
   entries.forEach(entry => {
     if (entry.isIntersecting) {
@@ -9,7 +9,32 @@ const observer = new IntersectionObserver((entries) => {
 
 document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
-// Project data with detailed information about your C# training projects
+
+const EMAILJS_CONFIG = {
+  PUBLIC_KEY: 'Td2VI_P-pbNXXjj1Q',        
+  SERVICE_ID: 'service_oxfl48c',              
+  TEMPLATE_ID: 'template_rrfm5w8'        
+};
+
+const ASSETS = {
+  videos: {
+    Storage: 'assets/videos/Storage.mp4',
+    Calender: 'assets/videos/Calender.mp4',
+    weather: 'assets/videos/weather.mp4'
+  },
+};
+
+const emailjsScript = document.createElement('script');
+emailjsScript.src = 'https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js';
+emailjsScript.onload = () => {
+  if (typeof emailjs !== 'undefined' && EMAILJS_CONFIG.PUBLIC_KEY !== 'Td2VI_P-pbNXXjj1Q') {
+    emailjs.init(EMAILJS_CONFIG.PUBLIC_KEY);
+    console.log('✅ EmailJS initialized successfully');
+  }
+};
+document.head.appendChild(emailjsScript);
+
+
 const projectData = {
   ecommerce: {
     title: 'E-Commerce App (C# .NET MAUI) - Training Project',
@@ -19,7 +44,7 @@ const projectData = {
       '💻 Developed with C# and .NET MAUI for cross-platform compatibility',
       '🏗️ Implements MVVM architecture pattern for clean code separation',
       '🛍️ Features product browsing, shopping cart, and checkout summary',
-      '🔐 Includes user authentication and order history demonstration',
+      '🔐 Includes user profile',
       '📱 Works on iOS, Android, Windows, and macOS'
     ],
     codeSnippet: `// Product Model Example - C# .NET MAUI
@@ -67,7 +92,9 @@ public class CartService
             GrandTotal = CalculateTotal() * 1.15m
         };
     }
-}`
+}`,
+    videoUrl: 'assets/videos/Storage.mp4',
+    //videoPoster: 'images/ecommerce-poster.jpg'
   },
   clone: {
     title: 'Frontend Clone App (C# .NET MAUI) - Training Project',
@@ -118,7 +145,9 @@ public class CartService
             </HorizontalStackLayout>
         </Border>
     </Grid>
-</ContentPage>`
+</ContentPage>`,
+    videoUrl: 'assets/videos/Calender.mp4',
+   // videoPoster: 'images/clone-poster.jpg'
   },
   health: {
     title: 'Student Health Booking System',
@@ -299,11 +328,13 @@ function displayWeatherData(data) {
     document.getElementById('wind-speed').textContent = \`\${data.wind.speed} km/h\`;
     document.getElementById('condition').textContent = data.weather[0].description;
     document.getElementById('weather-icon').src = \`https://openweathermap.org/img/w/\${data.weather[0].icon}.png\`;
-}`
+}`,
+    videoUrl: 'assets/videos/weather.mp4',
+    //videoPoster: 'images/weather-poster.jpg'
   }
 };
 
-// Function to view project details
+
 function viewProjectDetails(projectId) {
   const project = projectData[projectId];
   if (!project) {
@@ -317,8 +348,29 @@ function viewProjectDetails(projectId) {
   
   modalTitle.textContent = project.title;
   
-  // Build HTML content
-  let html = `
+  
+  const hasVideo = project.videoUrl && (projectId === 'ecommerce' || projectId === 'clone' || projectId === 'weather');
+  
+  
+  let html = '';
+  
+  
+  if (hasVideo) {
+    html += `
+      <div class="project-detail-section">
+        <h4>🎬 Video Showcase</h4>
+        <div class="video-container">
+          <video width="100%" controls poster="${project.videoPoster || ''}">
+            <source src="${project.videoUrl}" type="video/mp4">
+            Your browser does not support the video tag.
+          </video>
+          <p class="video-caption">Demo showcase of the ${project.title}</p>
+        </div>
+      </div>
+    `;
+  }
+  
+  html += `
     <div class="project-detail-section">
       <h4>📋 Description</h4>
       <p>${project.description}</p>
@@ -339,31 +391,59 @@ function viewProjectDetails(projectId) {
     </div>
   `;
   
+ 
+  if (hasVideo) {
+    html += `
+      
+    `;
+  }
+  
   modalBody.innerHTML = html;
   modal.style.display = 'block';
 }
 
-// Helper function to escape HTML special characters
+
 function escapeHtml(text) {
   const div = document.createElement('div');
   div.textContent = text;
   return div.innerHTML;
 }
 
-// Close modal function
+
 function closeModal() {
   const modal = document.getElementById('projectModal');
   modal.style.display = 'none';
 }
 
-// Send message function
-function sendMessage() {
+
+async function sendMessage() {
   const name = document.getElementById('contactName').value;
   const email = document.getElementById('contactEmail').value;
   const message = document.getElementById('contactMsg').value;
   
+  
   if (!name || !email || !message) {
-    alert('Please fill in all fields');
+    alert('❌ Please fill in all fields');
+    return;
+  }
+  
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    alert('❌ Please enter a valid email address');
+    return;
+  }
+  
+  
+  if (EMAILJS_CONFIG.PUBLIC_KEY === 'Td2VI_P-pbNXXjj1Q' || 
+      EMAILJS_CONFIG.TEMPLATE_ID === 'template_rrfm5w8') {
+    alert('⚠️ Email service is being configured. Please try again later or contact me directly at katlegokatenguyuza01@gmail.com');
+    return;
+  }
+  
+ 
+  if (typeof emailjs === 'undefined') {
+    alert('⚠️ Email service is loading. Please wait a moment and try again.');
     return;
   }
   
@@ -372,22 +452,53 @@ function sendMessage() {
   
   btn.textContent = 'Sending...';
   btn.style.background = '#1a7a4a';
+  btn.disabled = true;
   
-  // Simulate sending
-  setTimeout(() => {
-    btn.textContent = 'Message Sent! ✓';
+  try {
+    
+    const templateParams = {
+      name: name,
+      email: email,
+      message: message,
+      to_email: 'katlegokatenguyuza01@gmail.com'
+    };
+    
+    
+    const response = await emailjs.send(
+      EMAILJS_CONFIG.SERVICE_ID, 
+      EMAILJS_CONFIG.TEMPLATE_ID, 
+      templateParams
+    );
+    
+    console.log('✅ Email sent successfully!', response);
+    btn.textContent = '✓ Message Sent!';
+    btn.style.background = '#1a7a4a';
+    
+   
+    document.getElementById('contactName').value = '';
+    document.getElementById('contactEmail').value = '';
+    document.getElementById('contactMsg').value = '';
+    
+    
+    alert('✅ Your message has been sent successfully! I will get back to you soon.');
+    
     setTimeout(() => {
       btn.textContent = originalText;
       btn.style.background = '';
-      // Clear form
-      document.getElementById('contactName').value = '';
-      document.getElementById('contactEmail').value = '';
-      document.getElementById('contactMsg').value = '';
-    }, 2000);
-  }, 1000);
+      btn.disabled = false;
+    }, 3000);
+    
+  } catch (error) {
+    console.error('❌ Email send failed:', error);
+    alert('❌ Failed to send message. Please try again or contact me directly at katlegokatenguyuza01@gmail.com');
+    
+    btn.textContent = originalText;
+    btn.style.background = '';
+    btn.disabled = false;
+  }
 }
 
-// Close modal when clicking outside
+
 window.onclick = function(event) {
   const modal = document.getElementById('projectModal');
   if (event.target === modal) {
@@ -395,7 +506,7 @@ window.onclick = function(event) {
   }
 }
 
-// Smooth scrolling for navigation links
+
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
   anchor.addEventListener('click', function (e) {
     e.preventDefault();
@@ -409,7 +520,64 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
   });
 });
 
-// Make functions global for onclick handlers
+
 window.viewProjectDetails = viewProjectDetails;
 window.closeModal = closeModal;
 window.sendMessage = sendMessage;
+
+
+function toggleMobileMenu() {
+  const hamburger = document.querySelector('.hamburger');
+  const navLinks = document.querySelector('.nav-links');
+  const body = document.body;
+  
+  hamburger.classList.toggle('active');
+  navLinks.classList.toggle('active');
+  body.classList.toggle('menu-open');
+}
+
+function closeMobileMenu() {
+  const hamburger = document.querySelector('.hamburger');
+  const navLinks = document.querySelector('.nav-links');
+  const body = document.body;
+  
+  hamburger.classList.remove('active');
+  navLinks.classList.remove('active');
+  body.classList.remove('menu-open');
+}
+
+
+document.addEventListener('click', function(event) {
+  const navLinks = document.querySelector('.nav-links');
+  const hamburger = document.querySelector('.hamburger');
+  const isClickInsideNav = navLinks && navLinks.contains(event.target);
+  const isClickOnHamburger = hamburger && hamburger.contains(event.target);
+  
+  if (navLinks && navLinks.classList.contains('active') && !isClickInsideNav && !isClickOnHamburger) {
+    closeMobileMenu();
+  }
+});
+
+
+window.addEventListener('resize', function() {
+  if (window.innerWidth > 768) {
+    closeMobileMenu();
+  }
+});
+
+
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+  anchor.addEventListener('click', function (e) {
+    e.preventDefault();
+    const target = document.querySelector(this.getAttribute('href'));
+    if (target) {
+      closeMobileMenu(); 
+      setTimeout(() => {
+        target.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start'
+        });
+      }, 100);
+    }
+  });
+});
