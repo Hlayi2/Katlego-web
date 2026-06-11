@@ -427,23 +427,10 @@ async function sendMessage() {
     return;
   }
   
-
+  
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(email)) {
     alert('❌ Please enter a valid email address');
-    return;
-  }
-  
-  
-  if (EMAILJS_CONFIG.PUBLIC_KEY === 'Td2VI_P-pbNXXjj1Q' || 
-      EMAILJS_CONFIG.TEMPLATE_ID === 'template_rrfm5w8') {
-    alert('⚠️ Email service is being configured. Please try again later or contact me directly at katlegokatenguyuza01@gmail.com');
-    return;
-  }
-  
- 
-  if (typeof emailjs === 'undefined') {
-    alert('⚠️ Email service is loading. Please wait a moment and try again.');
     return;
   }
   
@@ -455,6 +442,11 @@ async function sendMessage() {
   btn.disabled = true;
   
   try {
+   
+    if (typeof emailjs === 'undefined') {
+      throw new Error('EmailJS not loaded');
+    }
+    
     
     const templateParams = {
       name: name,
@@ -462,6 +454,11 @@ async function sendMessage() {
       message: message,
       to_email: 'katlegokatenguyuza01@gmail.com'
     };
+    
+    console.log('Sending with config:', {
+      service: EMAILJS_CONFIG.SERVICE_ID,
+      template: EMAILJS_CONFIG.TEMPLATE_ID
+    });
     
     
     const response = await emailjs.send(
@@ -474,12 +471,12 @@ async function sendMessage() {
     btn.textContent = '✓ Message Sent!';
     btn.style.background = '#1a7a4a';
     
-   
+    
     document.getElementById('contactName').value = '';
     document.getElementById('contactEmail').value = '';
     document.getElementById('contactMsg').value = '';
     
-    
+   
     alert('✅ Your message has been sent successfully! I will get back to you soon.');
     
     setTimeout(() => {
@@ -490,7 +487,15 @@ async function sendMessage() {
     
   } catch (error) {
     console.error('❌ Email send failed:', error);
-    alert('❌ Failed to send message. Please try again or contact me directly at katlegokatenguyuza01@gmail.com');
+    
+   
+    let errorMessage = '❌ Failed to send message. ';
+    if (error.text) {
+      errorMessage += error.text;
+    } else {
+      errorMessage += 'Please try again or email me directly at katlegokatenguyuza01@gmail.com';
+    }
+    alert(errorMessage);
     
     btn.textContent = originalText;
     btn.style.background = '';
