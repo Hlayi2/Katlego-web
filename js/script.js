@@ -16,23 +16,29 @@ const EMAILJS_CONFIG = {
   TEMPLATE_ID: 'template_rrfm5w8'        
 };
 
+
+(function initEmailJS() {
+  
+  const script = document.createElement('script');
+  script.src = 'https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js';
+  script.onload = function() {
+    emailjs.init(EMAILJS_CONFIG.PUBLIC_KEY);
+    console.log('✅ EmailJS initialized with public key');
+  };
+  script.onerror = function() {
+    console.error('❌ Failed to load EmailJS');
+  };
+  document.head.appendChild(script);
+})();
+
+
 const ASSETS = {
   videos: {
-    Storage: 'assets/videos/Storage.mp4',
-    Calender: 'assets/videos/Calender.mp4',
+    ecommerce: 'assets/videos/Storage.mp4',
+    clone: 'assets/videos/Calender.mp4',
     weather: 'assets/videos/weather.mp4'
   },
 };
-
-const emailjsScript = document.createElement('script');
-emailjsScript.src = 'https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js';
-emailjsScript.onload = () => {
-  if (typeof emailjs !== 'undefined' && EMAILJS_CONFIG.PUBLIC_KEY !== 'Td2VI_P-pbNXXjj1Q') {
-    emailjs.init(EMAILJS_CONFIG.PUBLIC_KEY);
-    console.log('✅ EmailJS initialized successfully');
-  }
-};
-document.head.appendChild(emailjsScript);
 
 
 const projectData = {
@@ -94,7 +100,6 @@ public class CartService
     }
 }`,
     videoUrl: 'assets/videos/Storage.mp4',
-    //videoPoster: 'images/ecommerce-poster.jpg'
   },
   clone: {
     title: 'Frontend Clone App (C# .NET MAUI) - Training Project',
@@ -115,12 +120,10 @@ public class CartService
              Title="Home">
     
     <Grid RowDefinitions="Auto,*,Auto">
-        <!-- Header -->
         <Border Grid.Row="0" Style="{StaticResource HeaderStyle}">
             <Label Text="{Binding UserName}" FontSize="20" FontAttributes="Bold"/>
         </Border>
         
-        <!-- Main Content -->
         <CollectionView Grid.Row="1" ItemsSource="{Binding FeedItems}">
             <CollectionView.ItemTemplate>
                 <DataTemplate>
@@ -136,7 +139,6 @@ public class CartService
             </CollectionView.ItemTemplate>
         </CollectionView>
         
-        <!-- Bottom Tab Bar -->
         <Border Grid.Row="2" Style="{StaticResource TabBarStyle}">
             <HorizontalStackLayout Spacing="30" HorizontalOptions="Center">
                 <ImageButton Source="home_icon" Command="{Binding GoHomeCommand}"/>
@@ -147,7 +149,6 @@ public class CartService
     </Grid>
 </ContentPage>`,
     videoUrl: 'assets/videos/Calender.mp4',
-   // videoPoster: 'images/clone-poster.jpg'
   },
   health: {
     title: 'Student Health Booking System',
@@ -330,7 +331,6 @@ function displayWeatherData(data) {
     document.getElementById('weather-icon').src = \`https://openweathermap.org/img/w/\${data.weather[0].icon}.png\`;
 }`,
     videoUrl: 'assets/videos/weather.mp4',
-    //videoPoster: 'images/weather-poster.jpg'
   }
 };
 
@@ -348,19 +348,16 @@ function viewProjectDetails(projectId) {
   
   modalTitle.textContent = project.title;
   
-  
   const hasVideo = project.videoUrl && (projectId === 'ecommerce' || projectId === 'clone' || projectId === 'weather');
   
-  
   let html = '';
-  
   
   if (hasVideo) {
     html += `
       <div class="project-detail-section">
         <h4>🎬 Video Showcase</h4>
         <div class="video-container">
-          <video width="100%" controls poster="${project.videoPoster || ''}">
+          <video width="100%" controls>
             <source src="${project.videoUrl}" type="video/mp4">
             Your browser does not support the video tag.
           </video>
@@ -391,24 +388,15 @@ function viewProjectDetails(projectId) {
     </div>
   `;
   
- 
-  if (hasVideo) {
-    html += `
-      
-    `;
-  }
-  
   modalBody.innerHTML = html;
   modal.style.display = 'block';
 }
-
 
 function escapeHtml(text) {
   const div = document.createElement('div');
   div.textContent = text;
   return div.innerHTML;
 }
-
 
 function closeModal() {
   const modal = document.getElementById('projectModal');
@@ -421,16 +409,20 @@ async function sendMessage() {
   const email = document.getElementById('contactEmail').value;
   const message = document.getElementById('contactMsg').value;
   
-  
   if (!name || !email || !message) {
     alert('❌ Please fill in all fields');
     return;
   }
   
-  
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(email)) {
     alert('❌ Please enter a valid email address');
+    return;
+  }
+  
+  
+  if (typeof emailjs === 'undefined') {
+    alert('❌ Email service is loading. Please wait a moment and try again.');
     return;
   }
   
@@ -442,24 +434,11 @@ async function sendMessage() {
   btn.disabled = true;
   
   try {
-   
-    if (typeof emailjs === 'undefined') {
-      throw new Error('EmailJS not loaded');
-    }
-    
-    
     const templateParams = {
       name: name,
       email: email,
-      message: message,
-      to_email: 'katlegokatenguyuza01@gmail.com'
+      message: message
     };
-    
-    console.log('Sending with config:', {
-      service: EMAILJS_CONFIG.SERVICE_ID,
-      template: EMAILJS_CONFIG.TEMPLATE_ID
-    });
-    
     
     const response = await emailjs.send(
       EMAILJS_CONFIG.SERVICE_ID, 
@@ -467,16 +446,13 @@ async function sendMessage() {
       templateParams
     );
     
-    console.log('✅ Email sent successfully!', response);
+    console.log('✅ Email sent!', response);
     btn.textContent = '✓ Message Sent!';
-    btn.style.background = '#1a7a4a';
-    
     
     document.getElementById('contactName').value = '';
     document.getElementById('contactEmail').value = '';
     document.getElementById('contactMsg').value = '';
     
-   
     alert('✅ Your message has been sent successfully! I will get back to you soon.');
     
     setTimeout(() => {
@@ -486,16 +462,8 @@ async function sendMessage() {
     }, 3000);
     
   } catch (error) {
-    console.error('❌ Email send failed:', error);
-    
-   
-    let errorMessage = '❌ Failed to send message. ';
-    if (error.text) {
-      errorMessage += error.text;
-    } else {
-      errorMessage += 'Please try again or email me directly at katlegokatenguyuza01@gmail.com';
-    }
-    alert(errorMessage);
+    console.error('❌ Error:', error);
+    alert('❌ Failed to send message. Please email me directly at katlegokatenguyuza01@gmail.com');
     
     btn.textContent = originalText;
     btn.style.background = '';
@@ -510,25 +478,6 @@ window.onclick = function(event) {
     modal.style.display = 'none';
   }
 }
-
-
-document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-  anchor.addEventListener('click', function (e) {
-    e.preventDefault();
-    const target = document.querySelector(this.getAttribute('href'));
-    if (target) {
-      target.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start'
-      });
-    }
-  });
-});
-
-
-window.viewProjectDetails = viewProjectDetails;
-window.closeModal = closeModal;
-window.sendMessage = sendMessage;
 
 
 function toggleMobileMenu() {
@@ -576,7 +525,7 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     e.preventDefault();
     const target = document.querySelector(this.getAttribute('href'));
     if (target) {
-      closeMobileMenu(); 
+      closeMobileMenu();
       setTimeout(() => {
         target.scrollIntoView({
           behavior: 'smooth',
@@ -586,3 +535,10 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     }
   });
 });
+
+
+window.viewProjectDetails = viewProjectDetails;
+window.closeModal = closeModal;
+window.sendMessage = sendMessage;
+window.toggleMobileMenu = toggleMobileMenu;
+window.closeMobileMenu = closeMobileMenu;
