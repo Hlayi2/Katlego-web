@@ -404,25 +404,118 @@ function closeModal() {
 }
 
 
+
+function showCustomModal(title, message, type = 'success') {
+  
+  const existingModal = document.querySelector('.custom-modal-overlay');
+  if (existingModal) {
+    existingModal.remove();
+  }
+  
+  
+  const overlay = document.createElement('div');
+  overlay.className = 'custom-modal-overlay';
+  
+  
+  let icon = '✅';
+  if (type === 'error') icon = '❌';
+  if (type === 'info') icon = 'ℹ️';
+  
+  
+  overlay.innerHTML = `
+    <div class="custom-modal">
+      <div class="custom-modal-icon ${type}">${icon}</div>
+      <h3 class="custom-modal-title">${title}</h3>
+      <p class="custom-modal-message">${message}</p>
+      <button class="custom-modal-button" onclick="this.closest('.custom-modal-overlay').remove()">OK</button>
+    </div>
+  `;
+  
+  document.body.appendChild(overlay);
+  
+ 
+  const handleEscape = (e) => {
+    if (e.key === 'Escape') {
+      overlay.remove();
+      document.removeEventListener('keydown', handleEscape);
+    }
+  };
+  document.addEventListener('keydown', handleEscape);
+  
+  
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) {
+      overlay.remove();
+    }
+  });
+}
+
+
+function showToast(message, type = 'success', duration = 3000) {
+  
+  const existingToast = document.querySelector('.custom-toast');
+  if (existingToast) {
+    existingToast.remove();
+  }
+  
+  const toast = document.createElement('div');
+  toast.className = 'custom-toast';
+  
+  const icon = type === 'success' ? '✓' : type === 'error' ? '✗' : 'ℹ';
+  const title = type === 'success' ? 'Success' : type === 'error' ? 'Error' : 'Info';
+  
+  toast.innerHTML = `
+    <div class="toast-content ${type}">
+      <div class="toast-close" onclick="this.closest('.custom-toast').remove()">×</div>
+      <div class="toast-header">
+        <span class="toast-icon">${icon}</span>
+        <span class="toast-title">${title}</span>
+      </div>
+      <div class="toast-message">${message}</div>
+    </div>
+  `;
+  
+  document.body.appendChild(toast);
+  
+ 
+  setTimeout(() => {
+    if (toast && toast.parentNode) {
+      toast.classList.add('toast-hide');
+      setTimeout(() => {
+        if (toast && toast.parentNode) toast.remove();
+      }, 300);
+    }
+  }, duration);
+  
+  
+  const closeBtn = toast.querySelector('.toast-close');
+  if (closeBtn) {
+    closeBtn.onclick = () => {
+      toast.classList.add('toast-hide');
+      setTimeout(() => toast.remove(), 300);
+    };
+  }
+}
+
+
 async function sendMessage() {
   const name = document.getElementById('contactName').value;
   const email = document.getElementById('contactEmail').value;
   const message = document.getElementById('contactMsg').value;
   
   if (!name || !email || !message) {
-    alert('❌ Please fill in all fields');
+    showCustomModal('Incomplete Form', '❌ Please fill in all fields', 'error');
     return;
   }
   
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(email)) {
-    alert('❌ Please enter a valid email address');
+    showCustomModal('Invalid Email', '❌ Please enter a valid email address', 'error');
     return;
   }
   
-  
   if (typeof emailjs === 'undefined') {
-    alert('❌ Email service is loading. Please wait a moment and try again.');
+    showCustomModal('Service Loading', '⚠️ Email service is loading. Please wait a moment and try again.', 'info');
     return;
   }
   
@@ -453,7 +546,12 @@ async function sendMessage() {
     document.getElementById('contactEmail').value = '';
     document.getElementById('contactMsg').value = '';
     
-    alert('✅ Your message has been sent successfully! I will get back to you soon.');
+    
+    showCustomModal(
+      'Message Sent!', 
+      '✅ Your message has been sent successfully! I will get back to you soon.', 
+      'success'
+    );
     
     setTimeout(() => {
       btn.textContent = originalText;
@@ -463,7 +561,11 @@ async function sendMessage() {
     
   } catch (error) {
     console.error('❌ Error:', error);
-    alert('❌ Failed to send message. Please email me directly at katlegokatenguyuza01@gmail.com');
+    showCustomModal(
+      'Send Failed', 
+      '❌ Failed to send message. Please email me directly at katlegokatenguyuza01@gmail.com', 
+      'error'
+    );
     
     btn.textContent = originalText;
     btn.style.background = '';
